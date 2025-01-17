@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
  
-// These videos take long to make so I hope this helps you out and if you want to help me out you can by leaving a like and subscribe, thanks!
  
 public class Movement : MonoBehaviour
 {
@@ -18,7 +17,7 @@ public class Movement : MonoBehaviour
  
     public float jumpHeight = 6f;
     float velocityY;
-    bool isGrounded;
+    public bool isGrounded;
  
     float cameraCap;
     Vector2 currentMouseDelta;

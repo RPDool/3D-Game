@@ -8,8 +8,8 @@ public class PlayerShoot : MonoBehaviour
     public static Action shootInput;
     public static Action reloadInput;
 
-    [SerializeField] private KeyCode shootKey = KeyCode.Mouse0; // Default to left mouse button
-    [SerializeField] private KeyCode reloadKey = KeyCode.R; // Default to 'R' key
+    [SerializeField] private KeyCode shootKey = KeyCode.Mouse0;
+    [SerializeField] private KeyCode reloadKey = KeyCode.R;
 
     private void Update()
     {

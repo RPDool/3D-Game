@@ -7,8 +7,17 @@ public class Gun : MonoBehaviour
     [Header("References")]
     [SerializeField] private GunData gunData;
     [SerializeField] private Transform cam;
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private Transform projectileSpawnPoint; 
+    [SerializeField] private AudioSource shootSound; // Add this line to include an AudioSource for the shooting sound
+    [SerializeField] private AudioClip shootClip; // Add this line to include an AudioClip for the shooting sound
 
     private float timeSinceLastShot;
+
+    void Awake()
+    {
+        Physics.IgnoreLayerCollision(LayerMask.NameToLayer("Bullet"), LayerMask.NameToLayer("Bullet"));
+    }
 
     private void Start()
     {
@@ -44,16 +53,49 @@ public class Gun : MonoBehaviour
         {
             if (CanShoot())
             {
-                if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, gunData.maxDistance))
+                Debug.Log("Shooting...");
+
+                GameObject projectile = Instantiate(projectilePrefab, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+                Debug.Log("Projectile instantiated");
+
+                projectile.transform.Rotate(0, 90, 0);
+
+                // Ensure the MeshCollider is convex
+                MeshCollider meshCollider = projectile.GetComponent<MeshCollider>();
+                if (meshCollider != null)
                 {
-                    IDamagable damagable = hit.transform.GetComponent<IDamagable>();
-                    damagable?.Damage(gunData.damage);
+                    meshCollider.convex = true; 
+                }
+
+                Rigidbody rb = projectile.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.isKinematic = false;
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+                    rb.AddForce(cam.forward * gunData.projectileSpeed, ForceMode.Impulse);
+
+                    Collider projectileCollider = projectile.GetComponent<Collider>();
+                    Collider playerCollider = GetComponent<Collider>(); 
+                    if (projectileCollider != null && playerCollider != null)
+                    {
+                        Physics.IgnoreCollision(projectileCollider, playerCollider); 
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Projectile prefab does not have a Rigidbody component.");
                 }
 
                 gunData.currentAmmo--;
                 timeSinceLastShot = 0f;
                 OnGunShot();
             }
+        }
+        else
+        {
+            Debug.Log("Out of ammo");
         }
     }
 
@@ -66,12 +108,12 @@ public class Gun : MonoBehaviour
 
         timeSinceLastShot += Time.deltaTime;
 
-        if (Input.GetButton("Fire1")) // Assuming "Fire1" is the input for shooting
+        if (Input.GetButton("Fire1"))
         {
             Shoot();
         }
 
-        if (Input.GetKeyDown(KeyCode.R)) // Assuming "R" is the key for reloading
+        if (Input.GetKeyDown(KeyCode.R))
         {
             StartReload();
         }
@@ -81,6 +123,14 @@ public class Gun : MonoBehaviour
 
     private void OnGunShot()
     {
-        // Implement any additional logic for when the gun is shot
+        // Play the shooting sound using PlayOneShot
+        if (shootSound != null && shootClip != null)
+        {
+            shootSound.PlayOneShot(shootClip);
+        }
+        else
+        {
+            Debug.LogError("No AudioSource or AudioClip assigned for shooting sound.");
+        }
     }
 }

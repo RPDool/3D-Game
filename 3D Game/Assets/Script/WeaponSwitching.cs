@@ -38,7 +38,7 @@ public class WeaponSwitching : MonoBehaviour
             keys = new KeyCode[weapons.Length];
             for (int i = 0; i < weapons.Length; i++)
             {
-                keys[i] = KeyCode.Alpha1 + i; // Default keys to Alpha1, Alpha2, etc.
+                keys[i] = KeyCode.Alpha1 + i;
             }
         }
     }
